@@ -3,8 +3,8 @@ import sbt.Keys._
 lazy val root = (project in file("."))
   .enablePlugins(PlayService, PlayLayoutPlugin, Common)
   .settings(
-    name := "bachT",
-    scalaVersion := "2.13.1",
+    name := "bacht",
+    scalaVersion := "2.12.10",
     libraryDependencies ++= Seq(
       guice,
       "org.joda" % "joda-convert" % "2.2.1",
@@ -36,6 +36,6 @@ lazy val gatling = (project in file("gatling"))
 //    open docs/target/paradox/site/index.html
 lazy val docs = (project in file("docs")).enablePlugins(ParadoxPlugin).
   settings(
-    scalaVersion := "2.13.1",
+    scalaVersion := "2.12.10",
     paradoxProperties += ("download_url" -> "https://example.lightbend.com/v1/download/play-samples-play-scala-rest-api-example")
   )

@@ -9,7 +9,7 @@ import scala.concurrent.Future
 
 final case class BoardData(id: BoardId, title: String, body: String)
 
-class BoardId private(val underlying: Int) extends AnyVal {
+class BoardId private (val underlying: Int) extends AnyVal {
   override def toString: String = underlying.toString
 }
 
@@ -21,7 +21,7 @@ object BoardId {
 }
 
 class BoardExecutionContext @Inject()(actorSystem: ActorSystem)
-  extends CustomExecutionContext(actorSystem, "repository.dispatcher")
+    extends CustomExecutionContext(actorSystem, "repository.dispatcher")
 
 /**
   * A pure non-blocking interface for the BoardRepository.
@@ -43,7 +43,7 @@ trait BoardRepository {
   */
 @Singleton
 class BoardRepositoryImpl @Inject()()(implicit ec: BoardExecutionContext)
-  extends BoardRepository {
+    extends BoardRepository {
 
   private val logger = Logger(this.getClass)
 
@@ -52,19 +52,22 @@ class BoardRepositoryImpl @Inject()()(implicit ec: BoardExecutionContext)
     BoardData(BoardId("2"), "title 2", "board 2"),
     BoardData(BoardId("3"), "title 3", "board 3"),
     BoardData(BoardId("4"), "title 4", "board 4"),
-    BoardData(BoardId("5"), "title 5", "board 5")
+    BoardData(BoardId("5"), "title 5", "board 5"),
+    BoardData(BoardId("6"), "My title 6", "board 6")
   )
 
   override def list()(
-    implicit mc: MarkerContext): Future[Iterable[BoardData]] = {
+      implicit mc: MarkerContext
+  ): Future[Iterable[BoardData]] = {
     Future {
       logger.trace(s"list: ")
       boardList
     }
   }
 
-  override def get(id: BoardId)(
-    implicit mc: MarkerContext): Future[Option[BoardData]] = {
+  override def get(
+      id: BoardId
+  )(implicit mc: MarkerContext): Future[Option[BoardData]] = {
     Future {
       logger.trace(s"get: id = $id")
       boardList.find(board => board.id == id)

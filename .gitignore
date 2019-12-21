@@ -14,3 +14,8 @@ server.pid
 *.eml
 /dist/
 .cache
+.bloop
+.idea
+.metals
+docs/target/
+gatling/target/
