@@ -19,3 +19,4 @@ server.pid
 .metals
 docs/target/
 gatling/target/
+null/

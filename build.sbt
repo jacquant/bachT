@@ -19,7 +19,8 @@ lazy val root = (project in file("."))
       "-Xfatal-warnings"
     )
   )
-
+libraryDependencies += jdbc
+libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.30.1"
 lazy val gatlingVersion = "3.3.1"
 lazy val gatling = (project in file("gatling"))
   .enablePlugins(GatlingPlugin)
@@ -34,8 +35,9 @@ lazy val gatling = (project in file("gatling"))
 // Documentation for this project:
 //    sbt "project docs" "~ paradox"
 //    open docs/target/paradox/site/index.html
-lazy val docs = (project in file("docs")).enablePlugins(ParadoxPlugin).
-  settings(
+lazy val docs = (project in file("docs"))
+  .enablePlugins(ParadoxPlugin)
+  .settings(
     scalaVersion := "2.12.10",
     paradoxProperties += ("download_url" -> "https://example.lightbend.com/v1/download/play-samples-play-scala-rest-api-example")
   )
