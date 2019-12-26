@@ -10,7 +10,8 @@ import scala.concurrent.{Future, ExecutionContext}
 final case class CardData(
     id: CardId,
     title: String,
-    content: String
+    content: String,
+    status: String
 )
 
 class CardId private (val underlying: Int) extends AnyVal {
@@ -58,6 +59,8 @@ class CardRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(
     /** The ip column */
     def content = column[String]("content")
 
+    def status = column[String]("status")
+
     /**
       * This is the tables default "projection".
       *
@@ -67,7 +70,7 @@ class CardRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(
       * apply and unapply methods.
       */
     def * =
-      (id, title, content) <> ((Card.apply _).tupled, Card.unapply)
+      (id, title, content, status) <> ((Card.apply _).tupled, Card.unapply)
   }
 
   /**
@@ -89,9 +92,10 @@ class CardRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(
     */
   def create(
       title: String,
-      content: String
+      content: String,
+      status: String
   ): Future[Card] = {
-    val action = insertQuery += Card(0, title, content)
+    val action = insertQuery += Card(0, title, content, status)
     db.run(action)
   }
 

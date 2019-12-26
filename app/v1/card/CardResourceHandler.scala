@@ -12,7 +12,8 @@ import scala.concurrent.{ExecutionContext, Future}
 case class CardResource(
     id: String,
     title: String,
-    content: String
+    content: String,
+    status: String
 )
 
 object CardResource {
@@ -34,9 +35,14 @@ class CardResourceHandler @Inject()(
   def create(
       cardInput: CardFormInput
   )(implicit mc: MarkerContext): Future[CardResource] = {
-    val data = CardData(CardId("999"), cardInput.title, cardInput.content)
+    val data = CardData(
+      CardId("999"),
+      cardInput.title,
+      cardInput.content,
+      cardInput.status
+    )
     cardRepository
-      .create(cardInput.title, cardInput.content)
+      .create(cardInput.title, cardInput.content, cardInput.status)
       .map { id =>
         createCardResourceFromCard(id)
       }
@@ -68,7 +74,8 @@ class CardResourceHandler @Inject()(
     val data = Card(
       idCard.underlying,
       cardInput.title,
-      cardInput.content
+      cardInput.content,
+      cardInput.status
     )
     cardRepository.update(idCard, data)
   }
@@ -77,14 +84,16 @@ class CardResourceHandler @Inject()(
     CardResource(
       b.id.toString(),
       b.title,
-      b.content
+      b.content,
+      b.status
     )
   }
   private def createCardResourceFromCard(b: Card): CardResource = {
     CardResource(
       b.id.toString(),
       b.title,
-      b.content
+      b.content,
+      b.status
     )
   }
 }

@@ -10,7 +10,7 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-case class CardFormInput(title: String, content: String)
+case class CardFormInput(title: String, content: String, status: String)
 
 class CardController @Inject()(
     repo: CardRepository,
@@ -24,7 +24,8 @@ class CardController @Inject()(
     Form(
       mapping(
         "title" -> nonEmptyText,
-        "content" -> nonEmptyText
+        "content" -> nonEmptyText,
+        "status" -> nonEmptyText
       )(CardFormInput.apply)(CardFormInput.unapply)
     )
   }

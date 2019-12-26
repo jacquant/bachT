@@ -3,6 +3,8 @@ import javax.inject._
 import net.codingwell.scalaguice.ScalaModule
 import play.api.{Configuration, Environment}
 import v1.board._
+import v1.card._
+import bacht._
 
 /**
   * Sets up custom components for Play.
