@@ -1,7 +1,7 @@
 import sbt.Keys._
 
 lazy val root = (project in file("."))
-  .enablePlugins(PlayService, PlayLayoutPlugin, Common)
+  .enablePlugins(PlayService, PlayLayoutPlugin, PlayScala, Common)
   .settings(
     name := "bacht",
     scalaVersion := "2.12.10",
@@ -11,6 +11,8 @@ lazy val root = (project in file("."))
       "net.logstash.logback" % "logstash-logback-encoder" % "6.2",
       "io.lemonlabs" %% "scala-uri" % "1.5.1",
       "net.codingwell" %% "scala-guice" % "4.2.6",
+      "com.typesafe.play" %% "play-slick" % "5.0.0",
+      "com.typesafe.play" %% "play-slick-evolutions" % "5.0.0",
       "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
     ),
     scalacOptions ++= Seq(
@@ -19,7 +21,6 @@ lazy val root = (project in file("."))
       "-Xfatal-warnings"
     )
   )
-libraryDependencies += jdbc
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.30.1"
 lazy val gatlingVersion = "3.3.1"
 lazy val gatling = (project in file("gatling"))

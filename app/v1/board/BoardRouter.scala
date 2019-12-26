@@ -26,6 +26,12 @@ class BoardRouter @Inject()(controller: BoardController) extends SimpleRouter {
 
     case GET(p"/$id") =>
       controller.show(id)
+
+    case DELETE(p"/$id") =>
+      controller.delete(id)
+
+    case PUT(p"/$id") =>
+      controller.update(id)
   }
 
 }
