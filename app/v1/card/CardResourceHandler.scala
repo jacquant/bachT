@@ -4,6 +4,8 @@ import javax.inject.{Inject, Provider}
 import play.api.MarkerContext
 import play.api.libs.json._
 
+import bacht._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
@@ -35,22 +37,21 @@ class CardResourceHandler @Inject()(
   def create(
       cardInput: CardFormInput
   )(implicit mc: MarkerContext): Future[CardResource] = {
-    val data = CardData(
-      CardId("999"),
+    val creation = cardRepository.create(
       cardInput.title,
       cardInput.content,
       cardInput.status
     )
-    cardRepository
-      .create(cardInput.title, cardInput.content, cardInput.status)
-      .map { id =>
-        createCardResourceFromCard(id)
-      }
+    creation.map(item => tellToken(item.id.toString) )
+    creation.map{ id =>
+      createCardResourceFromCard(id)
+    }
   }
 
   def lookup(
       id: String
   )(implicit mc: MarkerContext): Future[CardResource] = {
+    askToken(id)
     val cardFuture = cardRepository.get(CardId(id))
     cardFuture.map { cardData =>
       createCardResourceFromCard(cardData)
@@ -64,6 +65,7 @@ class CardResourceHandler @Inject()(
   }
 
   def delete(id: String)(implicit mc: MarkerContext): Future[Boolean] = {
+    getToken(id)
     cardRepository.delete(CardId(id))
   }
 
@@ -77,6 +79,7 @@ class CardResourceHandler @Inject()(
       cardInput.content,
       cardInput.status
     )
+    updateToken(id,idCard.toString)   // a voir si cela fonctionne 
     cardRepository.update(idCard, data)
   }
 
@@ -96,4 +99,60 @@ class CardResourceHandler @Inject()(
       b.status
     )
   }
+
+  private def tellToken(title: String): Unit ={
+    val bachTRequest = "tell("+title+")"
+
+    ag.apply(bachTRequest)
+  }
+
+  private def askToken(title : String): Unit ={
+    val bachTRequest = "ask("+title+")"
+
+    ag.apply(bachTRequest)
+  }
+
+  private def getToken(title: String): Unit ={
+    val bachTRequest = "ask("+title+");get("+title+")"
+
+    ag.apply(bachTRequest)
+  }
+
+  private def updateToken(oldTitle : String, newTitle : String): Unit = {
+    getToken(oldTitle)
+    tellToken(newTitle)
+  }
+}
+
+
+
+object bs extends BachTStore{
+
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+
+  def reset { clear_store }
+
+  def intializeStore(card_repo : CardRepository): Unit ={
+    val l_cards: Future[Seq[Card]] = card_repo.list()
+
+    l_cards.foreach {
+       c => c.foreach { 
+         c_1 => print(c_1.id)
+         }
+       }
+
+  }
+}
+
+
+object ag extends BachTSimul(bs){
+
+  def apply(agent: String) {
+    val agent_parsed = BachTSimulParser.parse_agent(agent)
+    ag.bacht_exec_all(agent_parsed)
+    bs.print_store
+  }
+  def eval(agent:String) { apply(agent) }
+  def run(agent:String) { apply(agent) }
+
 }
