@@ -2,4 +2,6 @@
 ->        /v1/card         v1.card.CardRouter
 
 GET       /                controllers.Assets.at(path = "/public", file = "index.html")
+GET       /board           controllers.Default.redirect(to = "/board/")
+GET       /board/          controllers.Assets.at(path = "/public", file = "index.html")  
 GET       /*file           controllers.Assets.at(path = "/public", file)
