@@ -3,7 +3,7 @@ package v1.card
 import javax.inject.{Inject, Provider}
 import play.api.MarkerContext
 import play.api.libs.json._
-
+import scala.util.{Success, Failure}
 import bacht._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,7 +42,7 @@ class CardResourceHandler @Inject()(
       cardInput.content,
       cardInput.status
     )
-    creation.map(item => tellToken(item.id.toString) )
+    tellToken(cardInput.title)
     creation.map{ id =>
       createCardResourceFromCard(id)
     }
@@ -51,8 +51,13 @@ class CardResourceHandler @Inject()(
   def lookup(
       id: String
   )(implicit mc: MarkerContext): Future[CardResource] = {
-    askToken(id)
     val cardFuture = cardRepository.get(CardId(id))
+    val cardFuture2 : Future[Card] =  cardRepository.get(CardId(id))
+    cardFuture2.map(item => item.title)
+      .onComplete{
+        case Success(title) => askToken(title)   // a voir si cela fonctionne 
+        case Failure(e) =>  e.printStackTrace
+      }
     cardFuture.map { cardData =>
       createCardResourceFromCard(cardData)
     }
@@ -65,7 +70,12 @@ class CardResourceHandler @Inject()(
   }
 
   def delete(id: String)(implicit mc: MarkerContext): Future[Boolean] = {
-    getToken(id)
+    val cardFuture : Future[Card] =  cardRepository.get(CardId(id))
+    cardFuture.map(item => item.title)
+      .onComplete{
+        case Success(title) => getToken(title)   
+        case Failure(e) =>  e.printStackTrace
+      }
     cardRepository.delete(CardId(id))
   }
 
@@ -79,7 +89,13 @@ class CardResourceHandler @Inject()(
       cardInput.content,
       cardInput.status
     )
-    updateToken(id,idCard.toString)   // a voir si cela fonctionne 
+    val cardFuture : Future[Card] =  cardRepository.get(CardId(id))
+    cardFuture.map(item => item.title)
+      .onComplete{
+        case Success(title) => updateToken(title,cardInput.title)   
+        case Failure(e) =>  e.printStackTrace
+      }
+    
     cardRepository.update(idCard, data)
   }
 
@@ -148,6 +164,7 @@ object bs extends BachTStore{
 object ag extends BachTSimul(bs){
 
   def apply(agent: String) {
+    System.out.print("je suis en train d'appliquer")
     val agent_parsed = BachTSimulParser.parse_agent(agent)
     ag.bacht_exec_all(agent_parsed)
     bs.print_store
