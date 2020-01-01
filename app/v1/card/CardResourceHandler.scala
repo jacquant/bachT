@@ -153,7 +153,7 @@ object bs extends BachTStore{
 
     l_cards.foreach {
        c => c.foreach { 
-         c_1 => print(c_1.id)
+         c_1 => print(c_1.title)
          }
        }
 
