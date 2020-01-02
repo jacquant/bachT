@@ -1,5 +1,5 @@
 import sbt.Keys._
-
+import com.typesafe.sbt.packager.docker.DockerChmodType
 lazy val root = (project in file("."))
   .enablePlugins(PlayService, PlayLayoutPlugin, PlayScala, Common)
   .settings(
@@ -42,3 +42,11 @@ lazy val docs = (project in file("docs"))
     scalaVersion := "2.12.10",
     paradoxProperties += ("download_url" -> "https://example.lightbend.com/v1/download/play-samples-play-scala-rest-api-example")
   )
+enablePlugins(JavaAppPackaging)
+enablePlugins(DockerPlugin)
+dockerBaseImage := "openjdk"
+javaOptions in Universal ++= Seq(
+  "-Dpidfile.path=/dev/null"
+)
+
+dockerChmodType := DockerChmodType.UserGroupWriteExecute
