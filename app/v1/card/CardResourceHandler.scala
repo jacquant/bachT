@@ -43,7 +43,7 @@ class CardResourceHandler @Inject()(
       cardInput.status
     )
     tellToken(cardInput.title)
-    creation.map{ id =>
+    creation.map { id =>
       createCardResourceFromCard(id)
     }
   }
@@ -52,11 +52,12 @@ class CardResourceHandler @Inject()(
       id: String
   )(implicit mc: MarkerContext): Future[CardResource] = {
     val cardFuture = cardRepository.get(CardId(id))
-    val cardFuture2 : Future[Card] =  cardRepository.get(CardId(id))
-    cardFuture2.map(item => item.title)
-      .onComplete{
-        case Success(title) => askToken(title)   // a voir si cela fonctionne 
-        case Failure(e) =>  e.printStackTrace
+    val cardFuture2: Future[Card] = cardRepository.get(CardId(id))
+    cardFuture2
+      .map(item => item.title)
+      .onComplete {
+        case Success(title) => askToken(title) // a voir si cela fonctionne
+        case Failure(e)     => e.printStackTrace
       }
     cardFuture.map { cardData =>
       createCardResourceFromCard(cardData)
@@ -70,11 +71,12 @@ class CardResourceHandler @Inject()(
   }
 
   def delete(id: String)(implicit mc: MarkerContext): Future[Boolean] = {
-    val cardFuture : Future[Card] =  cardRepository.get(CardId(id))
-    cardFuture.map(item => item.title)
-      .onComplete{
-        case Success(title) => getToken(title)   
-        case Failure(e) =>  e.printStackTrace
+    val cardFuture: Future[Card] = cardRepository.get(CardId(id))
+    cardFuture
+      .map(item => item.title)
+      .onComplete {
+        case Success(title) => getToken(title)
+        case Failure(e)     => e.printStackTrace
       }
     cardRepository.delete(CardId(id))
   }
@@ -89,13 +91,14 @@ class CardResourceHandler @Inject()(
       cardInput.content,
       cardInput.status
     )
-    val cardFuture : Future[Card] =  cardRepository.get(CardId(id))
-    cardFuture.map(item => item.title)
-      .onComplete{
-        case Success(title) => updateToken(title,cardInput.title)   
-        case Failure(e) =>  e.printStackTrace
+    val cardFuture: Future[Card] = cardRepository.get(CardId(id))
+    cardFuture
+      .map(item => item.title)
+      .onComplete {
+        case Success(title) => updateToken(title, cardInput.title)
+        case Failure(e)     => e.printStackTrace
       }
-    
+
     cardRepository.update(idCard, data)
   }
 
@@ -116,60 +119,60 @@ class CardResourceHandler @Inject()(
     )
   }
 
-  private def tellToken(title: String): Unit ={
-    val bachTRequest = "tell("+title+")"
+  private def tellToken(title: String): Unit = {
+    val bachTRequest = "tell(" + title + ")"
 
     ag.apply(bachTRequest)
   }
 
-  private def askToken(title : String): Unit ={
-    val bachTRequest = "ask("+title+")"
+  private def askToken(title: String): Unit = {
+    val bachTRequest = "ask(" + title + ")"
 
     ag.apply(bachTRequest)
   }
 
-  private def getToken(title: String): Unit ={
-    val bachTRequest = "ask("+title+");get("+title+")"
+  private def getToken(title: String): Unit = {
+    val bachTRequest = "ask(" + title + ");get(" + title + ")"
 
     ag.apply(bachTRequest)
   }
 
-  private def updateToken(oldTitle : String, newTitle : String): Unit = {
+  private def updateToken(oldTitle: String, newTitle: String): Unit = {
     getToken(oldTitle)
     tellToken(newTitle)
   }
 }
 
+object bs extends BachTStore {
 
-
-object bs extends BachTStore{
-
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+  implicit val ec: scala.concurrent.ExecutionContext =
+    scala.concurrent.ExecutionContext.global
 
   def reset { clear_store }
 
-  def intializeStore(card_repo : CardRepository): Unit ={
+  def intializeStore(card_repo: CardRepository): Unit = {
     val l_cards: Future[Seq[Card]] = card_repo.list()
 
-    l_cards.foreach {
-       c => c.foreach { 
-         c_1 => print(c_1.title)
-         }
-       }
+    l_cards.foreach { c =>
+      c.foreach { c_1 =>
+        print(c_1.title)
+      }
+    }
 
   }
 }
 
-
-object ag extends BachTSimul(bs){
+object ag extends BachTSimul(bs) {
 
   def apply(agent: String) {
     System.out.print("je suis en train d'appliquer")
-    val agent_parsed = BachTSimulParser.parse_agent(agent)
+    print(agent)
+    val agent_parsed =
+      BachTSimulParser.parse_agent(agent.replaceAll(" ", "_").toLowerCase())
     ag.bacht_exec_all(agent_parsed)
     bs.print_store
   }
-  def eval(agent:String) { apply(agent) }
-  def run(agent:String) { apply(agent) }
+  def eval(agent: String) { apply(agent) }
+  def run(agent: String) { apply(agent) }
 
 }
